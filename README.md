@@ -2,7 +2,12 @@
 
 Datascience environment managed by Docker and Docker-compose. This plateform will be used for testing and exploration by datascientist from DCA's team. Easy to deploy on a linux serveur. 
 
-### launch the plateform
+### Prerequisites
+
+- [Docker](https://www.docker.com)
+- [Docker-compose](https://docs.docker.com/compose/)
+
+### Launch the platform
 
 ```sh
 $ git clone <repo_url>
@@ -11,7 +16,7 @@ $ make
 $ docker-compose up -d
 ```
 
-### Connect to the plateform
+### Connect to the platform
 
 - go to the url https://<ip_or_hostname_server> to open a jupyterlab session
 (you must first create a user on the host machine then add him to the file in plateform-ds/jupyterhub/userlist)
