@@ -1,0 +1,13 @@
+# docker compose file for base notebook
+version: '3.1'
+
+services:
+  spark-base:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        http_proxy:
+        https_proxy:
+        ftp_proxy:
+    image: hadoop-base:3.1.1
