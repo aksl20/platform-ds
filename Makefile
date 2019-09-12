@@ -64,7 +64,7 @@ hadoop-base:
 	cd hadoop-base && \
 	docker-compose build
 
-build: check-files network volumes
+build: check-files network volumes notebook_image spark-base hadoop-base
 	docker-compose build
 
 .PHONY: network volumes check-files pull notebook_image spark-base hadoop-base build
