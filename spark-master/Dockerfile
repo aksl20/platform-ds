@@ -1,4 +1,4 @@
-FROM spark-base:2.4.3
+FROM spark-base:2.3.4
 
 ENV SPARK_HOME /opt/spark
 ENV SPARK_LOG /var/log/spark
