@@ -144,7 +144,7 @@ RUN conda install --quiet --yes \
 
 RUN pip install tensorflow-gpu==1.14.0 \
       tensorflow==1.14.0 \
-      pyspark \
+      pyspark==2.3 \
       findspark \
       keras==2.2.4 \
       mlflow && \
