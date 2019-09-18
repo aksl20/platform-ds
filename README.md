@@ -23,4 +23,4 @@ $ docker-compose up -d
 - Hadoop nanemode: http://<ip_or_hostname_server>:9870
 - Hadoop datanode: http://<ip_or_hostname_server>:9864
 - Spark master: http://<ip_or_hostname_server>:8585 (webui) or http://<ip_or_hostname_server>:7077 (jobs)
-- Spark worker-<x>: http://<ip_or_hostname_server>:808<x>
+- Spark worker-[x]: http://<ip_or_hostname_server>:808[x]
