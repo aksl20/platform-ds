@@ -9,8 +9,6 @@ network:
 	@docker network inspect $(DOCKER_NETWORK_NAME) >/dev/null 2>&1 || docker network create $(DOCKER_NETWORK_NAME)
 
 volumes:
-	@docker volume inspect $(DATA_VOLUME_HOST) >/dev/null 2>&1 || docker volume create --name $(DATA_VOLUME_HOST)
-	@docker volume inspect $(DB_VOLUME_HOST) >/dev/null 2>&1 || docker volume create --name $(DB_VOLUME_HOST)
 	@docker volume inspect $(DATA_VOLUME_NAMENODE) >/dev/null 2>&1 || docker volume create --name $(DATA_VOLUME_NAMENODE)
 	@docker volume inspect $(DATA_VOLUME_DATANODE) >/dev/null 2>&1 || docker volume create --name $(DATA_VOLUME_DATANODE)
 
@@ -64,7 +62,7 @@ hadoop-base:
 	cd hadoop-base && \
 	docker-compose build
 
-build: check-files network volumes notebook_image spark-base hadoop-base
+build: network volumes spark-base hadoop-base
 	docker-compose build
 
 .PHONY: network volumes check-files pull notebook_image spark-base hadoop-base build

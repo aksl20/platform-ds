@@ -10,4 +10,4 @@ services:
         http_proxy:
         https_proxy:
         ftp_proxy:
-    image: spark-base:2.3.4
+    image: spark-base:2.4.4

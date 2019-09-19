@@ -5,68 +5,14 @@
 version: '3.1'
 
 services:
-  hub-db:
-    image: postgres:9.5
-    container_name: jupyterhub-db
-    restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      PGDATA: ${DB_VOLUME_CONTAINER}
-    env_file:
-      - jupyterhub/secrets/postgres.env
-    volumes:
-      - "db:${DB_VOLUME_CONTAINER}"
-
-  hub:
-    depends_on:
-      - hub-db
-    build:
-      context: ./jupyterhub
-      dockerfile: Dockerfile
-      args:
-        JUPYTERHUB_VERSION: ${JUPYTERHUB_VERSION}
-        http_proxy:
-        https_proxy:
-        ftp_proxy:
-    restart: always
-    image: jupyterhub
-    container_name: jupyterhub
-    volumes:
-      # Bind Docker socket on the host so we can connect to the daemon from
-      # within the container
-      - "/var/run/docker.sock:/var/run/docker.sock:rw"
-      - "/home/public/nbviewer:/public"
-      # Bind Docker volume on host for JupyterHub database and cookie secrets
-      - "data:${DATA_VOLUME_CONTAINER}"
-      - "/etc/shadow:/etc/shadow"
-      - "/etc/passwd:/etc/passwd"
-      - "/etc/pam.d:/etc/pam.d"
+  jupyter:
+    image: jupyter/pyspark-notebook
+    container_name: jupyter
+    hostname: jupyter
     ports:
-      - "443:443"
-      - "7070:7070"
-    links:
-      - hub-db
+      - "10000:8888"
     environment:
-      HOST:
-      # All containers will join this network
-      DOCKER_NETWORK_NAME: ${DOCKER_NETWORK_NAME}
-      # JupyterHub will spawn this Notebook image for users
-      DOCKER_NOTEBOOK_IMAGE: ${LOCAL_NOTEBOOK_IMAGE}
-      # Notebook directory inside user image
-      DOCKER_NOTEBOOK_DIR: ${DOCKER_NOTEBOOK_DIR}
-      # Using this run command (optional)
-      DOCKER_SPAWN_CMD: ${DOCKER_SPAWN_CMD}
-      ## needed for nvidia-docker version 2
-      NVIDIA_VISIBLE_DEVICES:     all
-      NVIDIA_DRIVER_CAPABILITIES: compute,utility
-      # Postgres db info
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST: hub-db
-    env_file:
-      - jupyterhub/secrets/postgres.env
-      - jupyterhub/secrets/oauth.env
-    command: >
-      jupyterhub -f /srv/jupyterhub/jupyterhub_config.py
+      - JUPYTER_ENABLE_LAB=yes 
 
   spark-master:
     build:
@@ -76,7 +22,7 @@ services:
         http_proxy:
         https_proxy:
         ftp_proxy:
-    image: spark-master:2.3.4
+    image: spark-master:2.4.4
     container_name: spark-master
     hostname: spark-master
     ports:
@@ -94,7 +40,7 @@ services:
         http_proxy:
         https_proxy:
         ftp_proxy:
-    image: spark-worker:2.3.4
+    image: spark-worker:2.4.4
     container_name: spark-worker-1
     hostname: spark-worker-1
     depends_on:
@@ -108,7 +54,7 @@ services:
   spark-worker-2:
     depends_on:
       - spark-worker-1
-    image: spark-worker:2.3.4
+    image: spark-worker:2.4.4
     container_name: spark-worker-2
     hostname: spark-worker-2
     depends_on:
@@ -119,20 +65,6 @@ services:
        - /mnt/spark-apps:/opt/spark-apps
        - /mnt/spark-data:/opt/spark-data
 
-  spark-worker-3:
-    depends_on:
-      - spark-worker-1 
-    image: spark-worker:2.3.4
-    container_name: spark-worker-3
-    hostname: spark-worker-3
-    depends_on:
-      - spark-master
-    ports:
-      - "8083:8081"
-    volumes:
-       - /mnt/spark-apps:/opt/spark-apps
-       - /mnt/spark-data:/opt/spark-data
-  
   namenode:
     image: platform-ds/hadoop-namenode:2.0.0-hadoop3.1.1-java8
     container_name: namenode
@@ -148,12 +80,13 @@ services:
     environment:
       - CLUSTER_NAME=test
     env_file:
-      - ./hadoop.env
+      - .env    
     ports:
       - 9870:9870
+      - 9000:9000  
       - 50070:50070
 
-  datanode:
+  datanode-1:
     image: platform-ds/hadoop-datanode:2.0.0-hadoop3.1.1-java8
     build:
       context: ./datanode
@@ -162,31 +95,50 @@ services:
         http_proxy:
         https_proxy:
         ftp_proxy:
-    container_name: datanode
+    container_name: datanode-1
     depends_on:
       - namenode
     volumes:
-      - "datanode:/hadoop/dfs/data"
+      - "datanode-1:/hadoop/dfs/data"
     env_file:
-      - ./hadoop.env
+      - .env    
     ports:
-      - 9864:9864
-      - 50075:50075
-    
+      - 9871:9864
+      - 50071:50075
+
+  datanode-2:
+    image: platform-ds/hadoop-datanode:2.0.0-hadoop3.1.1-java8
+    build:
+      context: ./datanode
+      dockerfile: Dockerfile
+      args:
+        http_proxy:
+        https_proxy:
+        ftp_proxy:
+    container_name: datanode-2
+    depends_on:
+      - namenode
+    volumes:
+      - "datanode-2:/hadoop/dfs/data"
+    env_file:
+      - .env    
+    ports:
+      - 9872:9864
+      - 50072:50075
+
 volumes:
-  datanode:
+  datanode-1:
     external:
-      name: datanode
+      name: datanode-1
+  
+  datanode-2:
+    external:
+      name: datanode-2
+
   namenode:
     external:
       name: namenode
-  data:
-    external:
-      name: "${DATA_VOLUME_HOST}"
-  db:
-    external:
-      name: "${DB_VOLUME_HOST}"
-
+  
 networks:
   default:
     external:
