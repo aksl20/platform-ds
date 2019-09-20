@@ -13,6 +13,8 @@ services:
       - "10000:8888"
     environment:
       - JUPYTER_ENABLE_LAB=yes 
+    volumes:
+      - jupyter-work:/home/jovyan/work
 
   spark-master:
     build:
@@ -132,6 +134,7 @@ volumes:
   namenode:
   spark-apps:
   spark-data:
+  jupyter-work:
 
 networks:
   default:
