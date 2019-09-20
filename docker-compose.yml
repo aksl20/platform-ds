@@ -6,7 +6,7 @@ version: '3.1'
 
 services:
   jupyter:
-    image: jupyter/pyspark-notebook
+    image: ${DOCKER_NOTEBOOK_IMAGE}
     container_name: jupyter
     hostname: jupyter
     ports:
@@ -29,8 +29,8 @@ services:
       - "8585:8080"
       - "7077:7077"
     volumes:
-      - /mnt/spark-apps:/opt/spark-apps
-      - /mnt/spark-data:/opt/spark-data
+      - ${APPS_VOLUME_SPARK}:/opt/spark-apps
+      - ${DATA_VOLUME_SPARK}:/opt/spark-data
             
   spark-worker-1:
     build:
@@ -48,8 +48,8 @@ services:
     ports:
       - "8081:8081"
     volumes:
-       - /mnt/spark-apps:/opt/spark-apps
-       - /mnt/spark-data:/opt/spark-data
+       - ${APPS_VOLUME_SPARK}:/opt/spark-apps
+       - ${DATA_VOLUME_SPARK}:/opt/spark-data
 
   spark-worker-2:
     depends_on:
@@ -62,8 +62,8 @@ services:
     ports:
       - "8082:8081"
     volumes:
-       - /mnt/spark-apps:/opt/spark-apps
-       - /mnt/spark-data:/opt/spark-data
+       - ${APPS_VOLUME_SPARK}:/opt/spark-apps
+       - ${DATA_VOLUME_SPARK}:/opt/spark-data
 
   namenode:
     image: platform-ds/hadoop-namenode:2.0.0-hadoop3.1.1-java8
@@ -128,17 +128,11 @@ services:
 
 volumes:
   datanode-1:
-    external:
-      name: datanode-1
-  
   datanode-2:
-    external:
-      name: datanode-2
-
   namenode:
-    external:
-      name: namenode
-  
+  spark-apps:
+  spark-data:
+
 networks:
   default:
     external:
