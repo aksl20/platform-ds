@@ -1,7 +1,5 @@
 FROM hadoop-base:3.1.1
 
-MAINTAINER Ivan Ermilov <ivan.s.ermilov@gmail.com>
-
 HEALTHCHECK CMD curl -f http://localhost:9870/ || exit 1
 
 ENV HDFS_CONF_dfs_namenode_name_dir=file:///hadoop/dfs/name
