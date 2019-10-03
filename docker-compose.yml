@@ -2,6 +2,15 @@ version: '3.1'
 
 services:
   jupyter:
+    build:
+      context: ./jupyter
+      dockerfile: Dockerfile
+      args:
+        http_proxy:
+        https_proxy:
+        ftp_proxy:
+        ALMOND_VERSION: 0.8.2
+        SCALA_VERSIONS: 2.12.8
     image: ${DOCKER_NOTEBOOK_IMAGE}
     container_name: jupyter
     hostname: jupyter
