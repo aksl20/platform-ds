@@ -42,3 +42,10 @@ RUN ./install-kernels.sh && \
     rm install-kernels.sh && \
     rm -rf .ivy2
 
+# Install kernel spark scala
+RUN pip install toree
+
+USER root
+RUN jupyter toree install
+
+USER $NB_UID
