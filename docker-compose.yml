@@ -60,7 +60,7 @@ services:
 
   spark-worker-2:
     depends_on:
-      - spark-worker-1
+      - spark-master
     image: spark-worker:2.4.4
     container_name: spark-worker-2
     hostname: spark-worker-2
@@ -132,6 +132,18 @@ services:
     ports:
       - 9872:9864
       - 50072:50075
+
+  resourcemanager:
+    depends_on:
+      - namenode
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.1.2-java8
+    container_name: resourcemanager
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870 datanode-1:9864 datanode-2:9864"
+    env_file:
+      - .env
+    ports:
+      - 8088:8088
 
 volumes:
   datanode-1:

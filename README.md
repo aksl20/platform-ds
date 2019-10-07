@@ -46,9 +46,10 @@ lines = sc.textFile("hdfs://namenode:9000/<your_path_to_the_file>")
 
 ### Connect to the platform
 
-- go to the url http://localhost:10000 to open a jupyterlab session
+- go to the url http://<ip_or_hostname_server>:10000 to open a jupyterlab session
 - Hadoop nanemode: http://<ip_or_hostname_server>:9870
 - Hadoop datanode: http://<ip_or_hostname_server>:9864
+- Ressource Manager: http://<ip_or_hostname_server>:8088
 - Spark master: http://<ip_or_hostname_server>:8585 (webui) or http://<ip_or_hostname_server>:7077 (jobs)
 - Spark worker-[x]: http://<ip_or_hostname_server>:808[x]
 
