@@ -1,0 +1,107 @@
+version: '3.1'
+
+services:
+  jupyter:
+    build:
+      context: ./jupyter
+      dockerfile: Dockerfile
+      args:
+        http_proxy:
+        https_proxy:
+        ftp_proxy:
+        ALMOND_VERSION: 0.8.2
+        SCALA_VERSIONS: 2.12.8
+    image: ${DOCKER_NOTEBOOK_IMAGE}
+    container_name: jupyter
+    hostname: jupyter
+    ports:
+      - "10000:8888"
+      - "4040:4040"  
+    environment:
+      - JUPYTER_ENABLE_LAB=yes 
+    volumes:
+      - jupyter-work:/home/jovyan/work
+
+  namenode:
+    image: platform-ds/hadoop-namenode:2.0.0-hadoop3.1.1-java8
+    container_name: namenode
+    build:
+      context: ./namenode
+      dockerfile: Dockerfile
+      args:
+        http_proxy:
+        https_proxy:
+        ftp_proxy:
+    volumes:
+      - "namenode:/hadoop/dfs/name"
+    environment:
+      - CLUSTER_NAME=test
+    env_file:
+      - .env    
+    ports:
+      - 9870:9870
+      - 9000:9000  
+      - 50070:50070
+
+  datanode-1:
+    image: platform-ds/hadoop-datanode:2.0.0-hadoop3.1.1-java8
+    build:
+      context: ./datanode
+      dockerfile: Dockerfile
+      args:
+        http_proxy:
+        https_proxy:
+        ftp_proxy:
+    container_name: datanode-1
+    depends_on:
+      - namenode
+    volumes:
+      - "datanode-1:/hadoop/dfs/data"
+    env_file:
+      - .env    
+    ports:
+      - 9871:9864
+      - 50071:50075
+
+  datanode-2:
+    image: platform-ds/hadoop-datanode:2.0.0-hadoop3.1.1-java8
+    build:
+      context: ./datanode
+      dockerfile: Dockerfile
+      args:
+        http_proxy:
+        https_proxy:
+        ftp_proxy:
+    container_name: datanode-2
+    depends_on:
+      - namenode
+    volumes:
+      - "datanode-2:/hadoop/dfs/data"
+    env_file:
+      - .env    
+    ports:
+      - 9872:9864
+      - 50072:50075
+
+  resourcemanager:
+    depends_on:
+      - namenode
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.1.2-java8
+    container_name: resourcemanager
+    environment:
+      SERVICE_PRECONDITION: "namenode:9870 datanode-1:9864 datanode-2:9864"
+    env_file:
+      - .env
+    ports:
+      - 8088:8088
+
+volumes:
+  datanode-1:
+  datanode-2:
+  namenode:
+  jupyter-work:
+
+networks:
+  default:
+    external:
+      name: ${DOCKER_NETWORK_NAME}
